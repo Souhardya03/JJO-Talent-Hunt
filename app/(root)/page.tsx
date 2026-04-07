@@ -322,7 +322,7 @@ export default function OfficialRegistrationForm() {
                                     <HelpCircle className="w-4 h-4 text-blue-500 mt-0.5" />
                                     <p className="text-[11px] text-blue-700 leading-relaxed font-medium">You will be redirected to PayPal's secure portal to complete this transaction. Do not close this window during the process.</p>
                                 </div>
-                                <PayPalButtons style={{ layout: "vertical", shape: "rect", color: "blue", height: 48 }} createOrder={(d, a) => a.order.create({ purchase_units: [{ amount: { currency_code: "USD", value: total.toString() } }] })} onApprove={async (d, a) => {
+                                <PayPalButtons style={{ layout: "vertical", shape: "rect", color: "blue", height: 48 }} createOrder={(d, a) => a.order.create({ intent: "CAPTURE", purchase_units: [{ amount: { currency_code: "USD", value: total.toString() } }] })} onApprove={async (d, a) => {
                                     const details = await a.order?.capture();
                                     await saveToDatabase({ ...watch(), transaction_id: details?.id, total_amount: total, payment_method: "PayPal" });
                                     toast.success("Submission Complete.");
