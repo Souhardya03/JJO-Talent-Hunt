@@ -222,7 +222,7 @@ export default function AdminRegistrationsPage() {
                   </TableCell>
                   <TableCell className="text-right px-8">
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger>
                         <Button variant="ghost" className="h-10 w-10 p-0 hover:bg-white hover:shadow-md rounded-xl transition-all">
                           <MoreHorizontal className="h-5 w-5 text-slate-400" />
                         </Button>
