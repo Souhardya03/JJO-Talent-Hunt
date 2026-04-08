@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import Image from "next/image"
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -148,8 +149,11 @@ export default function OfficialRegistrationForm() {
           {/* Official Header */}
           <div className="bg-white border w-full border-slate-200 p-8 rounded-t-xl border-b-4 border-b-[#0f172a] shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="space-y-1">
-                <h1 className="text-2xl font-bold tracking-tight text-[#0f172a]">Official Enrolment Form</h1>
+                <h1 className="text-2xl font-bold tracking-tight text-[#0f172a]">Registration Form</h1>
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">JJO Talent Hunt — 2026</p>
+            </div>
+            <div>
+                <Image src={"/JJOLogo.png"} alt="" width={92} height={92}/>
             </div>
             
           </div>
@@ -175,16 +179,16 @@ export default function OfficialRegistrationForm() {
                 <CardContent className="p-8 space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-2">
-                            <Label className="text-xs font-bold text-slate-700">Full Legal Name of Student</Label>
+                            <Label className="text-xs font-bold text-slate-700">Full Name</Label>
                             <Input {...register("name")} className="rounded-md h-10 border-slate-300 focus:ring-slate-950 focus:border-slate-950" placeholder="Full Name" />
                             {errors.name && <p className="text-red-600 text-[10px] font-medium">{errors.name.message as string}</p>}
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-xs font-bold text-slate-700">Name of Parent/Legal Guardian</Label>
+                            <Label className="text-xs font-bold text-slate-700">Name of Parent/Guardian</Label>
                             <Input {...register("parent_name")} className="rounded-md h-10 border-slate-300" />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-xs font-bold text-slate-700">Authorized Email Address</Label>
+                            <Label className="text-xs font-bold text-slate-700">Email Address</Label>
                             <Input {...register("email")} type="email" className="rounded-md h-10 border-slate-300" placeholder="admin@example.com" />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -217,7 +221,7 @@ export default function OfficialRegistrationForm() {
                 </div>
                 <CardContent className="p-8 space-y-6">
                     <div className="space-y-2">
-                        <Label className="text-xs font-bold text-slate-700">Primary Street Address</Label>
+                        <Label className="text-xs font-bold text-slate-700">Street Address with apartment number</Label>
                         <Input {...register("address")} className="rounded-md h-10 border-slate-300" placeholder="Street number and name" />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -244,7 +248,7 @@ export default function OfficialRegistrationForm() {
             <Card className="rounded-xl border-slate-200 shadow-sm overflow-hidden">
                 <div className="bg-slate-50 px-6 py-3 border-b border-slate-200">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                        <CheckCircle2 className="w-3 h-3" /> Section 03: Competition Disciplines
+                        <CheckCircle2 className="w-3 h-3" /> Section 03: Categories
                     </span>
                 </div>
                 <CardContent className="p-8">
