@@ -40,7 +40,7 @@ const AdminLogin = () => {
       const data = await response.json().catch(() => ({}));
       const token = data.token || data.accessToken || 'authenticated';
       
-      // Securely set the HttpOnly cookie using our Server Action
+      // Securely set the HttpOnly cookie using our Server Actio
       await setAuthCookie(token);
 
       router.push('/admin/registrations')
