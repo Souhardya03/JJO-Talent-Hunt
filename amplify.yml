@@ -4,6 +4,8 @@ frontend:
     preBuild:
       commands:
         # Install pnpm globally before running install
+        - export NODE_OPTIONS="--max-old-space-size=6144"
+        - npm ci
         - npm install -g pnpm
         - pnpm install
     build:
