@@ -271,6 +271,25 @@ export default function OfficialRegistrationForm() {
                 </CardContent>
             </Card>
 
+            {/* RULES & REGULATIONS PDF BOX */}
+            <Card className="rounded-xl border-slate-200 shadow-sm overflow-hidden bg-slate-50">
+                <div className="bg-blue-50 px-6 py-4 border-b border-blue-100 flex items-center gap-3">
+                    <FileText className="w-5 h-5 text-blue-600" />
+                    <span className="text-sm font-bold text-blue-900">
+                        Please review rules and regulations before paying
+                    </span>
+                </div>
+                <CardContent className="p-0">
+                    {/* Ensure you place a "rules.pdf" file inside your "public" folder */}
+                    <iframe 
+                        src="/rules.pdf" 
+                        
+                        className="w-full h-[600px] border-none bg-white"
+                        title="Rules and Regulations"
+                    />
+                </CardContent>
+            </Card>
+
             {/* 4. PAYMENT & SUBMISSION */}
             <Card className="rounded-xl border-slate-200 shadow-md overflow-hidden border-t-4 border-t-slate-900">
                 <CardContent className="p-0 flex flex-col md:flex-row">
@@ -284,7 +303,7 @@ export default function OfficialRegistrationForm() {
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Payment Method</p>
                             <div className="space-y-2">
                                 {[
-                                    { id: "Stripe", label: "Credit / Debit", icon: CreditCard },
+                                    // { id: "Stripe", label: "Credit / Debit", icon: CreditCard },
                                     { id: "PayPal", label: "PayPal Express", icon: Wallet },
                                     { id: "Zelle", label: "Zelle Transfer", icon: Landmark },
                                 ].map((m) => (
@@ -307,7 +326,7 @@ export default function OfficialRegistrationForm() {
 
                     {/* Dynamic Gateway Area */}
                     <div className="flex-1 p-8 bg-white min-h-[350px] flex flex-col justify-center">
-                        {activeMethod === "Stripe" && (
+                        {/* {activeMethod === "Stripe" && (
                             clientSecret ? (
                                 <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'stripe' } }}>
                                     <StripeSubmitSection total={total} isProcessing={isStripeLoading} onConfirm={handleStripeConfirm} />
@@ -318,7 +337,7 @@ export default function OfficialRegistrationForm() {
                                     <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Awaiting Gateway initialization...</p>
                                 </div>
                             )
-                        )}
+                        )} */}
 
                         {activeMethod === "PayPal" && (
                             <div className="space-y-6 animate-in fade-in">
