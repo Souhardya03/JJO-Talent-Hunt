@@ -279,14 +279,16 @@ export default function OfficialRegistrationForm() {
                         Please review rules and regulations before paying
                     </span>
                 </div>
-                <CardContent className="p-0">
-                    {/* Ensure you place a "rules.pdf" file inside your "public" folder */}
-                    <iframe 
-                        src="/rules.pdf" 
-                        
-                        className="w-full h-[600px] border-none bg-white"
-                        title="Rules and Regulations"
-                    />
+                <CardContent className="p-6 flex items-center justify-center">
+                    <Button 
+                        type="button" 
+                        variant="outline"
+                        className="gap-2 border-blue-200 text-blue-700 hover:bg-blue-100 hover:text-blue-900"
+                        onClick={() => window.open("https://drive.google.com/file/d/1m7ivPrfuyWPJTt5BLbOVgXPWmw1O5khu/view", "_blank")}
+                    >
+                        <FileText className="w-4 h-4" />
+                        Open Rules and Regulations
+                    </Button>
                 </CardContent>
             </Card>
 
