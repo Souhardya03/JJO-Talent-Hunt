@@ -53,7 +53,7 @@ const schema = z.object({
 })
 
 const saveToDatabase = async (payload: any) => {
-    return await fetch('https://m9bnvd4c8j.execute-api.us-east-1.amazonaws.com/dev/v1/registrations', {
+    return await fetch('https://ewagy9qntg.execute-api.us-east-1.amazonaws.com/prod/v1/registrations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

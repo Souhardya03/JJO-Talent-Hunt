@@ -157,7 +157,7 @@ export default function AdminRegistrationsPage() {
 	const router = useRouter();
 
 	const API_URL =
-		"https://m9bnvd4c8j.execute-api.us-east-1.amazonaws.com/dev/v1/registrations";
+		"https://ewagy9qntg.execute-api.us-east-1.amazonaws.com/prod/v1/registrations";
 
 	const fetchRegistrations = async () => {
 		setLoading(true);
