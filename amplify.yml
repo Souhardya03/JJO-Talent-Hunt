@@ -3,12 +3,11 @@ frontend:
   phases:
     preBuild:
       commands:
-        # Install pnpm globally before running install
-        # - export NODE_OPTIONS="--max-old-space-size=6144"
         - npm install -g pnpm
-        - pnpm install
+        - pnpm install --frozen-lockfile
     build:
       commands:
+        - export NODE_OPTIONS="--max-old-space-size=6144"
         - pnpm run build
   artifacts:
     baseDirectory: .next
