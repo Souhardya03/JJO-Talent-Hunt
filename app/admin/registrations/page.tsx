@@ -143,12 +143,15 @@ type Registration = {
 	total_amount: number;
 	categories: Category[];
 	created_at: string;
+	active_status?: string;
 };
 
 export default function AdminRegistrationsPage() {
 	const [registrations, setRegistrations] = useState<Registration[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [fetchingMore, setFetchingMore] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
+	const [lastKey, setLastKey] = useState<{last_id: string; email: string} | null>(null);
 
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 	const [isViewOpen, setIsViewOpen] = useState(false);
@@ -159,25 +162,51 @@ export default function AdminRegistrationsPage() {
 	const API_URL =
 		"https://ewagy9qntg.execute-api.us-east-1.amazonaws.com/prod/v1/registrations";
 
-	const fetchRegistrations = async () => {
-		setLoading(true);
+	// const API_URL =
+	// 	"https://m9bnvd4c8j.execute-api.us-east-1.amazonaws.com/dev/v1/registrations";
+
+	const fetchRegistrations = async (query = searchQuery, loadMore = false) => {
+		if (loadMore) {
+			setFetchingMore(true);
+		} else {
+			setLoading(true);
+		}
+		
 		const token = await getAuthToken();
 		try {
-			const response = await fetch(API_URL, {
-				headers: { Authorization: `Bearer ${token}` },
+			const url = new URL(API_URL);
+			if (query) {
+				url.searchParams.append("search", query);
+			}
+			if (loadMore && lastKey) {
+				url.searchParams.append("last_id", lastKey.last_id);
+				url.searchParams.append("email", lastKey.email);
+			}
+			const response = await fetch(url.toString(), {
+				// headers: { Authorization: `Bearer ${token}` },
+				method: "GET"
 			});
 			const data = await response.json();
-			setRegistrations(data.items || []);
+			if (loadMore) {
+				setRegistrations((prev) => [...prev, ...(data.items || [])]);
+			} else {
+				setRegistrations(data.items || []);
+			}
+			setLastKey(data.last_key || null);
 		} catch (error) {
 			toast.error("Database connection failed");
 		} finally {
-			setLoading(false);
+			if (loadMore) setFetchingMore(false);
+			else setLoading(false);
 		}
 	};
 
 	useEffect(() => {
-		fetchRegistrations();
-	}, []);
+		const timer = setTimeout(() => {
+			fetchRegistrations(searchQuery);
+		}, 500);
+		return () => clearTimeout(timer);
+	}, [searchQuery]);
 
 	const deleteRegistration = async (reg_id: string, email: string) => {
 		if (!confirm("Permanently remove this record from the manifest?")) return;
@@ -235,13 +264,6 @@ export default function AdminRegistrationsPage() {
 		setCurrentReg({ ...currentReg, categories: newCats });
 	};
 
-	const filteredData = registrations.filter((reg) => {
-		const s = searchQuery.toLowerCase();
-		return (
-			reg.name.toLowerCase().includes(s) || reg.email.toLowerCase().includes(s)
-		);
-	});
-
 	const handleLogout = async () => {
 		await removeAuthCookie();
 		router.push("/");
@@ -266,7 +288,7 @@ export default function AdminRegistrationsPage() {
 					<div className="flex gap-3">
 						<Button
 							variant="outline"
-							onClick={fetchRegistrations}
+							onClick={() => fetchRegistrations(searchQuery)}
 							disabled={loading}
 							className="rounded-xl border-slate-200 bg-white h-11">
 							<RefreshCcw
@@ -341,10 +363,20 @@ export default function AdminRegistrationsPage() {
 				<div className="relative">
 					<Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
 					<Input
-						placeholder="Search manifest by name or official email..."
+						placeholder="Search manifest by name or email (Press Enter)..."
 						className="pl-11 h-14 bg-white border-slate-100 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-600 transition-all"
 						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
+						onChange={(e) => {
+							setSearchQuery(e.target.value);
+							if (e.target.value === "") {
+								fetchRegistrations("");
+							}
+						}}
+						onKeyDown={(e) => {
+							if (e.key === "Enter") {
+								fetchRegistrations(searchQuery);
+							}
+						}}
 					/>
 				</div>
 
@@ -365,6 +397,9 @@ export default function AdminRegistrationsPage() {
 								<TableHead className="font-black text-slate-400 text-[10px] uppercase tracking-widest">
 									Amount
 								</TableHead>
+								<TableHead className="font-black text-slate-400 text-[10px] uppercase tracking-widest">
+									Status
+								</TableHead>
 								<TableHead className="text-right px-8"></TableHead>
 							</TableRow>
 						</TableHeader>
@@ -372,13 +407,19 @@ export default function AdminRegistrationsPage() {
 							{loading ? (
 								<TableRow>
 									<TableCell
-										colSpan={5}
+										colSpan={6}
 										className="h-96 text-center">
 										<Loader2 className="w-10 h-10 animate-spin mx-auto text-blue-600 opacity-20" />
 									</TableCell>
 								</TableRow>
+							) : registrations.length === 0 ? (
+								<TableRow>
+									<TableCell colSpan={6} className="h-32 text-center text-slate-500 font-medium">
+										No registrations found.
+									</TableCell>
+								</TableRow>
 							) : (
-								filteredData.map((reg) => (
+								registrations.map((reg) => (
 									<TableRow
 										key={reg.reg_id}
 										className="group hover:bg-slate-50/50 transition-colors border-slate-50">
@@ -425,6 +466,22 @@ export default function AdminRegistrationsPage() {
 												{reg.payment_method}
 											</p>
 										</TableCell>
+										<TableCell>
+											<Badge
+												variant="secondary"
+												className={cn(
+													"text-[8px] font-black uppercase px-2 py-0.5 border-none rounded-md",
+													reg.active_status === "Active"
+														? "bg-emerald-50 text-emerald-700"
+														: reg.active_status === "Pending"
+															? "bg-amber-50 text-amber-700"
+															: reg.active_status === "Inactive"
+																? "bg-red-50 text-red-700"
+																: "bg-slate-50 text-slate-700",
+												)}>
+												{reg.active_status || "Pending"}
+											</Badge>
+										</TableCell>
 										<TableCell className="text-right px-8">
 											<DropdownMenu>
 												<DropdownMenuTrigger>
@@ -469,6 +526,19 @@ export default function AdminRegistrationsPage() {
 							)}
 						</TableBody>
 					</Table>
+					{lastKey && (
+						<div className="flex justify-center p-6 bg-slate-50/50 border-t border-slate-100">
+							<Button
+								variant="outline"
+								onClick={() => fetchRegistrations(searchQuery, true)}
+								disabled={fetchingMore || loading}
+								className="rounded-xl bg-white shadow-sm"
+							>
+								{fetchingMore && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+								{fetchingMore ? "Loading..." : "Load More Registrations"}
+							</Button>
+						</div>
+					)}
 				</div>
 			</div>
 
@@ -499,6 +569,25 @@ export default function AdminRegistrationsPage() {
 										<p className="text-xs font-mono font-bold text-slate-600">
 											{currentReg?.reg_id}
 										</p>
+									</div>
+									<div>
+										<p className="text-[10px] font-bold text-slate-300 uppercase">
+											Status
+										</p>
+										<Badge
+											variant="secondary"
+											className={cn(
+												"mt-1 text-[8px] font-black uppercase px-2 py-0.5 border-none rounded-md",
+												currentReg?.active_status === "Active"
+													? "bg-emerald-50 text-emerald-700"
+													: currentReg?.active_status === "Pending"
+														? "bg-amber-50 text-amber-700"
+														: currentReg?.active_status === "Inactive"
+															? "bg-red-50 text-red-700"
+															: "bg-slate-50 text-slate-700",
+											)}>
+											{currentReg?.active_status || "Pending"}
+										</Badge>
 									</div>
 									<div>
 										<p className="text-[10px] font-bold text-slate-300 uppercase">
@@ -637,6 +726,23 @@ export default function AdminRegistrationsPage() {
 											}
 											className="h-12 rounded-xl bg-slate-50 border-none font-bold"
 										/>
+									</div>
+									<div className="space-y-1">
+										<Label className="text-[10px] font-black text-slate-400 uppercase ml-1">
+											Status
+										</Label>
+										<select
+											value={currentReg?.active_status || "Pending"}
+											onChange={(e) =>
+												setCurrentReg((prev) =>
+													prev ? { ...prev, active_status: e.target.value } : null,
+												)
+											}
+											className="w-full h-12 rounded-xl bg-slate-50 border-none font-bold text-xs px-3 outline-none">
+											<option value="Active">Active</option>
+											<option value="Pending">Pending</option>
+											<option value="Inactive">Inactive</option>
+										</select>
 									</div>
 									<div className="grid grid-cols-2 gap-4 pt-1">
 										<div className="space-y-1">
