@@ -904,7 +904,7 @@ export default function AdminRegistrationsPage() {
 							{isUpdating ? (
 								<Loader2 className="animate-spin" />
 							) : (
-								"Authorize Manifest Override"
+								"Authorize Rgistration"
 							)}
 						</Button>
 					</form>
