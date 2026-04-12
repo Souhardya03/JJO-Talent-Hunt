@@ -139,7 +139,7 @@ const schema = z
 const saveToDatabase = async (payload: any) => {
 	try {
 		const res = await fetch(
-			"https://m9bnvd4c8j.execute-api.us-east-1.amazonaws.com/dev/v1/registrations",
+			"https://ewagy9qntg.execute-api.us-east-1.amazonaws.com/prod/v1/registrations",
 			{
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
