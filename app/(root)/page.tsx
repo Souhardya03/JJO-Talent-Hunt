@@ -126,23 +126,6 @@ const schema = z
 		selected_categories: z
 			.array(z.string())
 			.min(1, "Select at least one discipline"),
-	})
-	.superRefine((data, ctx) => {
-		if (data.payment_method === "Zelle") {
-			if (!data.transaction_id || data.transaction_id.trim().length === 0) {
-				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
-					message: "Reference ID required for Zelle",
-					path: ["transaction_id"],
-				});
-			} else if (data.transaction_id.trim().length <= 15) {
-				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
-					message: "Reference ID must be greater than 15 characters",
-					path: ["transaction_id"],
-				});
-			}
-		}
 	});
 
 // const saveToDatabase = async (payload: any) => {
@@ -156,7 +139,7 @@ const schema = z
 const saveToDatabase = async (payload: any) => {
 	try {
 		const res = await fetch(
-			"https://ewagy9qntg.execute-api.us-east-1.amazonaws.com/prod/v1/registrations",
+			"https://m9bnvd4c8j.execute-api.us-east-1.amazonaws.com/dev/v1/registrations",
 			{
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -294,7 +277,7 @@ export default function OfficialRegistrationForm() {
 				await saveToDatabase({
 					...watch(),
 					transaction_id: paymentIntent.id,
-					total_amount: total,
+					total_amount:total,
 				});
 				toast.success("Official Enrolment Confirmed.");
 				reset();
@@ -309,14 +292,15 @@ export default function OfficialRegistrationForm() {
 	};
 
 	const handleSuccessRedirect = (result: any) => {
-		const d = result.data;
+		const d = result.data || result;
+		console.log(d)
 		const query = new URLSearchParams({
-			reg_id: d.reg_id,
-			name: d.name,
-			email: d.email,
-			tx: d.transaction_id,
-			amount: d.total_amount.toString(),
-			method: d.payment_method,
+			reg_id: d.reg_id || "N/A",
+			name: d.name || "N/A",
+			email: d.email || "N/A",
+			tx: d.transaction_id || "N/A",
+			amount: d.total_amount ? d.total_amount.toString() : "0",
+			method: d.payment_method || "N/A",
 		}).toString();
 
 		router.push(`/success?${query}`); // Adjust path if your success page is elsewhere
@@ -352,19 +336,18 @@ export default function OfficialRegistrationForm() {
 					<form
 						onSubmit={handleSubmit(async (d) => {
 							if (activeMethod === "Zelle") {
-								try {
-									const res = await saveToDatabase({ ...d, total_amount: total });
+								
+									const res = await saveToDatabase({ ...d, total_amount: total, transaction_id: "Pending - Zelle" });
 									const result = await res.json();
-                                    console.log(result);
+									
                                     
 									if (result.success) {
 										toast.success("Official Enrolment Confirmed.");
+										console.log(result);
 										handleSuccessRedirect(result);
                                         setClientSecret(null);
 									}
-								} catch (err) {
-									toast.error("Failed to submit registration. Please try again later.");
-								}
+								
 							}
 						})}
 						className="space-y-6 w-full">
@@ -723,7 +706,7 @@ export default function OfficialRegistrationForm() {
 														const response = await saveToDatabase({
 															...watch(),
 															transaction_id: details?.id,
-															total_amount: total,
+															total_amount: parseFloat(total.toFixed(2)),
 															payment_method: "PayPal",
 														});
 
@@ -732,15 +715,15 @@ export default function OfficialRegistrationForm() {
 														if (result.success) {
 															toast.success("Submission Complete.");
 
-															const registration = result.data;
+															const registration = result.data || result;
 
 															const query = new URLSearchParams({
-																reg_id: registration.reg_id,
-																name: registration.name,
-																email: registration.email,
-																tx: registration.transaction_id,
-																amount: registration.total_amount.toString(),
-																method: registration.payment_method,
+																reg_id: registration.reg_id || "N/A",
+																name: registration.name || "N/A",
+																email: registration.email || "N/A",
+																tx: registration.transaction_id || "N/A",
+																amount: registration.total_amount ? registration.total_amount.toString() : "0",
+																method: registration.payment_method || "N/A",
 															}).toString();
 
 															reset();
@@ -766,6 +749,12 @@ export default function OfficialRegistrationForm() {
 
 									{activeMethod === "Zelle" && (
 										<div className="space-y-6 animate-in slide-in-from-bottom-2">
+											<div className="p-4 rounded-md bg-blue-50 border border-blue-100 flex items-start gap-3">
+												<HelpCircle className="w-4 h-4 text-blue-500 mt-0.5" />
+												<p className="text-[11px] text-blue-700 leading-relaxed font-medium">
+													Please send zelle payment to following account and submit this page. We will confirm the registration soon.
+												</p>
+											</div>
 											<div className="bg-slate-50 border border-slate-200 p-6 rounded-md space-y-4">
 												<div className="space-y-1">
 													<Label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
@@ -788,21 +777,6 @@ export default function OfficialRegistrationForm() {
 												</div>
 											</div>
 											<div className="space-y-4">
-												<div className="space-y-2">
-													<Label className="text-xs font-bold text-slate-700">
-														Reference / Confirmation ID
-													</Label>
-													<Input
-														{...register("transaction_id")}
-														placeholder="Enter bank reference ID"
-														className="rounded-md border-slate-300"
-													/>
-													{errors.transaction_id && (
-														<p className="text-red-600 text-[10px] font-medium">
-															{errors.transaction_id.message as string}
-														</p>
-													)}
-												</div>
 												<Button
 													type="submit"
 													disabled={isSubmitting}
