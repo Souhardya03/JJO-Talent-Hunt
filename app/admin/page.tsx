@@ -23,7 +23,7 @@ const AdminLogin = () => {
 
     try {
       // TODO: Replace this URL with your actual backend authentication endpoint
-      const response = await fetch('https://clkovxgt00.execute-api.us-east-1.amazonaws.com/jjo-api/admin/login', {
+      const response = await fetch('https://e2li07xir9.execute-api.us-east-1.amazonaws.com/dev/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
