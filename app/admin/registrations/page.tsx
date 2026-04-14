@@ -22,6 +22,7 @@ import {
 	AtSign,
 	Home,
 	LogOut,
+	Download,
 } from "lucide-react";
 
 import {
@@ -157,6 +158,7 @@ export default function AdminRegistrationsPage() {
 	const [isViewOpen, setIsViewOpen] = useState(false);
 	const [currentReg, setCurrentReg] = useState<Registration | null>(null);
 	const [isUpdating, setIsUpdating] = useState(false);
+	const [isDownloading, setIsDownloading] = useState(false);
 	const router = useRouter();
 
 	const API_URL =
@@ -269,6 +271,54 @@ export default function AdminRegistrationsPage() {
 		router.push("/");
 	};
 
+	const handleDownloadXlsx = async () => {
+		setIsDownloading(true);
+		try {
+			const response = await fetch(
+				"https://ewagy9qntg.execute-api.us-east-1.amazonaws.com/prod/v1/registrations/get-all-data",
+				{
+					headers: { Authorization: `Bearer ${await getAuthToken()}` },
+				}
+			);
+			const data = await response.json();
+			if (data.success && data.items) {
+				const formattedData = data.items.map((item: any) => ({
+					"Registration ID": item.reg_id,
+					"Name": item.name,
+					"Parent Name": item.parent_name,
+					"Email": item.email,
+					"Age Group": item.age_group,
+					"Grade": item.grade,
+					"Street": item.street,
+					"City": item.city,
+					"State": item.state,
+					"Zip": item.zip,
+					"Payment Method": item.payment_method,
+					"Transaction ID": item.transaction_id,
+					"Total Amount": item.total_amount,
+					"Categories": item.categories?.map((c: any) => c.name).join(", ") || "",
+					"Status": item.active_status,
+					"Date Created": new Date(item.created_at).toLocaleString()
+				}));
+
+				// Dynamically import xlsx to prevent SSR issues and build failures if uninstalled
+				const XLSX = await import("xlsx");
+				const ws = XLSX.utils.json_to_sheet(formattedData);
+				const wb = XLSX.utils.book_new();
+				XLSX.utils.book_append_sheet(wb, ws, "Registrations");
+				XLSX.writeFile(wb, "Registrations_Export.xlsx");
+				toast.success("Download started successfully");
+			} else {
+				toast.error("Failed to fetch data for export");
+			}
+		} catch (error) {
+			console.error("Download error:", error);
+			toast.error("Export failed. Make sure to run 'npm install xlsx'.");
+		} finally {
+			setIsDownloading(false);
+		}
+	};
+
 	return (
 		<div className="min-h-screen bg-[#F9FAFB] p-6 md:p-10 font-sans text-slate-900">
 			<div className="max-w-7xl mx-auto space-y-8">
@@ -286,6 +336,14 @@ export default function AdminRegistrationsPage() {
 						</p>
 					</div>
 					<div className="flex gap-3">
+						<Button
+							variant="outline"
+							onClick={handleDownloadXlsx}
+							disabled={isDownloading}
+							className="rounded-xl border-slate-200 bg-white h-11 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50">
+							<Download className={cn("w-4 h-4 mr-2", isDownloading && "animate-bounce")} />
+							{isDownloading ? "Exporting..." : "Export XLSX"}
+						</Button>
 						<Button
 							variant="outline"
 							onClick={() => fetchRegistrations(searchQuery)}
