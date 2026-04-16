@@ -152,7 +152,7 @@ export default function AdminRegistrationsPage() {
 	const [loading, setLoading] = useState(true);
 	const [fetchingMore, setFetchingMore] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
-	const [lastKey, setLastKey] = useState<{last_id: string; email: string} | null>(null);
+	const [lastKey, setLastKey] = useState<{last_id: string; last_email: string; last_created_at:string} | null>(null);
 
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 	const [isViewOpen, setIsViewOpen] = useState(false);
@@ -182,7 +182,8 @@ export default function AdminRegistrationsPage() {
 			}
 			if (loadMore && lastKey) {
 				url.searchParams.append("last_id", lastKey.last_id);
-				url.searchParams.append("email", lastKey.email);
+				url.searchParams.append("last_email", lastKey.last_email);
+				url.searchParams.append("last_created_atemail", lastKey.last_created_at);
 			}
 			const response = await fetch(url.toString(), {
 				// headers: { Authorization: `Bearer ${token}` },
