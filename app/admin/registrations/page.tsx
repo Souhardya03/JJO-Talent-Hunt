@@ -186,7 +186,7 @@ export default function AdminRegistrationsPage() {
 				url.searchParams.append("last_created_atemail", lastKey.last_created_at);
 			}
 			const response = await fetch(url.toString(), {
-				// headers: { Authorization: `Bearer ${token}` },
+				 headers: { Authorization: `Bearer ${token}` },
 				method: "GET"
 			});
 			const data = await response.json();
