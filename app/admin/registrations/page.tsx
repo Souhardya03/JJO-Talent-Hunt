@@ -23,6 +23,7 @@ import {
 	Home,
 	LogOut,
 	Download,
+	Ban,
 } from "lucide-react";
 
 import {
@@ -51,6 +52,13 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import {
 	Dialog,
 	DialogContent,
@@ -152,6 +160,7 @@ export default function AdminRegistrationsPage() {
 	const [loading, setLoading] = useState(true);
 	const [fetchingMore, setFetchingMore] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
+	const [statusFilter, setStatusFilter] = useState("All");
 	const [lastKey, setLastKey] = useState<{last_id: string; last_email: string; last_created_at:string} | null>(null);
 
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -167,7 +176,7 @@ export default function AdminRegistrationsPage() {
 	// const API_URL =
 	// 	"https://m9bnvd4c8j.execute-api.us-east-1.amazonaws.com/dev/v1/registrations";
 
-	const fetchRegistrations = async (query = searchQuery, loadMore = false) => {
+	const fetchRegistrations = async (query = searchQuery, loadMore = false, status = statusFilter) => {
 		if (loadMore) {
 			setFetchingMore(true);
 		} else {
@@ -180,10 +189,13 @@ export default function AdminRegistrationsPage() {
 			if (query) {
 				url.searchParams.append("search", query);
 			}
+			if (status && status !== "All") {
+				url.searchParams.append("active_status", status);
+			}
 			if (loadMore && lastKey) {
 				url.searchParams.append("last_id", lastKey.last_id);
 				url.searchParams.append("last_email", lastKey.last_email);
-				url.searchParams.append("last_created_atemail", lastKey.last_created_at);
+				url.searchParams.append("last_created_at", lastKey.last_created_at);
 			}
 			const response = await fetch(url.toString(), {
 				 headers: { Authorization: `Bearer ${token}` },
@@ -206,10 +218,10 @@ export default function AdminRegistrationsPage() {
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
-			fetchRegistrations(searchQuery);
+			fetchRegistrations(searchQuery, false, statusFilter);
 		}, 500);
 		return () => clearTimeout(timer);
-	}, [searchQuery]);
+	}, [searchQuery, statusFilter]);
 
 	const deleteRegistration = async (reg_id: string, email: string) => {
 		if (!confirm("Permanently remove this record from the manifest?")) return;
@@ -249,12 +261,54 @@ export default function AdminRegistrationsPage() {
 			if (response.ok) {
 				toast.success("Regsitration Updated Successfully");
 				setIsEditDialogOpen(false);
-				fetchRegistrations();
+				fetchRegistrations(searchQuery, false, statusFilter);
 			}
 		} catch (e) {
 			toast.error("Update failed");
 		} finally {
 			setIsUpdating(false);
+		}
+	};
+
+	const toggleRegistrationStatus = async (registration: Registration) => {
+		const newStatus =
+			registration.active_status === "Active" ? "Inactive" : "Active";
+		const updatedRegistration = { ...registration, active_status: newStatus };
+
+		// Optimistically update the UI
+		setRegistrations((prev) =>
+			prev.map((r) =>
+				r.reg_id === registration.reg_id ? updatedRegistration : r,
+			),
+		);
+
+		try {
+			const response = await fetch(
+				`${API_URL}?reg_id=${registration.reg_id}&email=${registration.email}`,
+				{
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${await getAuthToken()}`,
+					},
+					body: JSON.stringify(updatedRegistration),
+				},
+			);
+			if (response.ok) {
+				toast.success(`Registration status updated to ${newStatus}`);
+			} else {
+				// Revert UI change on failure
+				setRegistrations((prev) =>
+					prev.map((r) => (r.reg_id === registration.reg_id ? registration : r)),
+				);
+				toast.error("Status update failed");
+			}
+		} catch (e) {
+			// Revert UI change on network error
+			setRegistrations((prev) =>
+				prev.map((r) => (r.reg_id === registration.reg_id ? registration : r)),
+			);
+			toast.error("Status update failed");
 		}
 	};
 
@@ -347,7 +401,7 @@ export default function AdminRegistrationsPage() {
 						</Button>
 						<Button
 							variant="outline"
-							onClick={() => fetchRegistrations(searchQuery)}
+							onClick={() => fetchRegistrations(searchQuery, false, statusFilter)}
 							disabled={loading}
 							className="rounded-xl border-slate-200 bg-white h-11">
 							<RefreshCcw
@@ -418,25 +472,38 @@ export default function AdminRegistrationsPage() {
 					))}
 				</div>
 
-				{/* Search */}
-				<div className="relative">
-					<Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-					<Input
-						placeholder="Search manifest by name or email (Press Enter)..."
-						className="pl-11 h-14 bg-white border-slate-100 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-600 transition-all"
-						value={searchQuery}
-						onChange={(e) => {
-							setSearchQuery(e.target.value);
-							if (e.target.value === "") {
-								fetchRegistrations("");
-							}
-						}}
-						onKeyDown={(e) => {
-							if (e.key === "Enter") {
-								fetchRegistrations(searchQuery);
-							}
-						}}
-					/>
+				{/* Search and Filters */}
+				<div className="flex flex-col sm:flex-row gap-4">
+					<div className="relative flex-1">
+						<Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+						<Input
+							placeholder="Search manifest by name or email (Press Enter)..."
+							className="pl-11 h-14 bg-white border-slate-100 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-600 transition-all"
+							value={searchQuery}
+							onChange={(e) => {
+								setSearchQuery(e.target.value);
+								if (e.target.value === "") {
+									fetchRegistrations("", false, statusFilter);
+								}
+							}}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") {
+									fetchRegistrations(searchQuery, false, statusFilter);
+								}
+							}}
+						/>
+					</div>
+					<Select value={statusFilter} onValueChange={(value) => setStatusFilter(value || "All")}>
+						<SelectTrigger className="h-14 px-4 bg-white border-slate-100 border rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-600 transition-all outline-none text-sm font-medium text-slate-600 min-w-[160px]">
+							<SelectValue placeholder="Select status" />
+						</SelectTrigger>
+						<SelectContent className="rounded-2xl border-slate-100 shadow-xl">
+							<SelectItem value="All">All</SelectItem>
+							<SelectItem value="Active">Active</SelectItem>
+							<SelectItem value="Inactive">Inactive</SelectItem>
+							<SelectItem value="Pending">Pending</SelectItem>
+						</SelectContent>
+					</Select>
 				</div>
 
 				{/* Records Table */}
@@ -568,6 +635,20 @@ export default function AdminRegistrationsPage() {
 														}}
 														className="rounded-lg font-bold text-xs py-3 cursor-pointer">
 														<Edit3 className="w-4 h-4 mr-2" /> Edit Details
+													</DropdownMenuItem>
+													<DropdownMenuItem
+														onClick={() => toggleRegistrationStatus(reg)}
+														className="rounded-lg font-bold text-xs py-3 cursor-pointer">
+														{reg.active_status === "Active" ? (
+															<>
+																<Ban className="w-4 h-4 mr-2" /> Mark as Inactive
+															</>
+														) : (
+															<>
+																<CheckCircle2 className="w-4 h-4 mr-2" /> Mark as
+																Active
+															</>
+														)}
 													</DropdownMenuItem>
 													<Separator className="my-2" />
 													<DropdownMenuItem
