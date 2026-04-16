@@ -185,7 +185,7 @@ export default function AdminRegistrationsPage() {
 				url.searchParams.append("email", lastKey.email);
 			}
 			const response = await fetch(url.toString(), {
-				// headers: { Authorization: `Bearer ${token}` },
+				 headers: { Authorization: `Bearer ${token}` },
 				method: "GET"
 			});
 			const data = await response.json();
