@@ -494,7 +494,7 @@ export default function AdminRegistrationsPage() {
 						/>
 					</div>
 					<Select value={statusFilter} onValueChange={(value) => setStatusFilter(value || "All")}>
-						<SelectTrigger className="h-14 px-4 bg-white border-slate-100 border rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-600 transition-all outline-none text-sm font-medium text-slate-600 min-w-[160px]">
+						<SelectTrigger className="h-14 px-4 bg-white border-slate-100 border rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-600 transition-all outline-none text-sm font-medium text-slate-600 min-w-40">
 							<SelectValue placeholder="Select status" />
 						</SelectTrigger>
 						<SelectContent className="rounded-2xl border-slate-100 shadow-xl">
