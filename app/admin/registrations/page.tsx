@@ -73,12 +73,12 @@ import { cn } from "@/lib/utils";
 import { removeAuthCookie, getAuthToken } from "@/app/actions";
 
 const AVAILABLE_CATEGORIES = [
-	"Singing",
-	"Dance",
-	"Musical Instrument",
+	// "Singing",
+	// "Dance",
+	// "Musical Instrument",
 	"Recitation",
 	"Drawing",
-	"Monologue",
+	// "Monologue",
 	"Script Writing",
 ];
 
