@@ -122,7 +122,9 @@ const schema = z
 		selected_categories: z
 			.array(z.string())
 			.min(1, "Select at least one discipline"),
-	});
+	}) as z.ZodType<any>;
+
+type FormSchema = z.infer<typeof schema>;
 
 // const saveToDatabase = async (payload: any) => {
 //     return await fetch('https://ewagy9qntg.execute-api.us-east-1.amazonaws.com/prod/v1/registrations', {
@@ -207,8 +209,8 @@ export default function OfficialRegistrationForm() {
 		trigger,
 		reset,
 		formState: { errors, isSubmitting },
-	} = useForm({
-		resolver: zodResolver(schema),
+	} = useForm<FormSchema>({
+		resolver: zodResolver(schema as any),
 		defaultValues: {
 			name: "",
 			parent_name: "",
@@ -551,7 +553,7 @@ export default function OfficialRegistrationForm() {
 														"selected_categories",
 														c
 															? [...selectedCats, cat.id]
-															: selectedCats.filter((i) => i !== cat.id),
+															: selectedCats.filter((i: string) => i !== cat.id),
 														{ shouldValidate: true },
 													)
 												}
