@@ -532,7 +532,6 @@ export default function OfficialRegistrationForm() {
 							</CardContent>
 						</Card>
 
-						{/* 3. DISCIPLINES */}
 						<Card className="rounded-xl border-slate-200 shadow-sm overflow-hidden">
 							<div className="bg-slate-50 px-6 py-3 border-b border-slate-200">
 								<span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
