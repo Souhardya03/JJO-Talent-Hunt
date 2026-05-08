@@ -48,12 +48,8 @@ const stripePromise = loadStripe(
 );
 
 const CATEGORIES = [
-	{ id: "Singing", name: "Singing", price: 10 },
-	{ id: "Dance", name: "Dance", price: 10 },
-	{ id: "Musical Instrument", name: "Musical Instrument", price: 10 },
 	{ id: "Recitation", name: "Recitation", price: 10 },
 	{ id: "Drawing", name: "Drawing", price: 10 },
-	{ id: "Monologue", name: "Monologue", price: 10 },
 	{ id: "Script Writing", name: "Script Writing", price: 10 },
 ];
 
