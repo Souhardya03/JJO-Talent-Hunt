@@ -349,7 +349,7 @@ export default function OfficialRegistrationForm() {
 							}
 						})}
 						className="space-y-6 w-full">
-						{/* 1. APPLICANT DATA */}
+						{/* 1. APPLICANT DAA */}
 						<Card className="rounded-xl border-slate-200 shadow-sm overflow-hidden">
 							<div className="bg-slate-50 px-6 py-3 border-b border-slate-200 flex items-center justify-between">
 								<span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
