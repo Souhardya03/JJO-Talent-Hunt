@@ -4,6 +4,8 @@ frontend:
     preBuild:
       commands:
         - npm install -g pnpm
+        # Use pnpm config to ensure it uses the local store for better caching
+        - pnpm config set store-dir .pnpm-store
         - pnpm install --frozen-lockfile
     build:
       commands:
@@ -16,4 +18,4 @@ frontend:
   cache:
     paths:
       - .next/cache/**/*
-      - node_modules/**/*
+      - .pnpm-store/**/*  # Cache the pnpm store instead of just node_modules
