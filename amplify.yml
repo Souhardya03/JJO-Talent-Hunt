@@ -1,18 +1,25 @@
 version: 1
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - npm install -g pnpm@9
-        - pnpm install
-    build:
-      commands:
-        - pnpm build
-  artifacts:
-    baseDirectory: .next
-    files:
-      - '**/*'
-  cache:
-    paths:
-      - .pnpm-store/**/*
-      - node_modules/**/*
+
+applications:
+  - appRoot: .
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm install -g pnpm@9
+            - rm -f pnpm-workspace.yaml
+            - rm -f pnpm-workspace.yml
+            - pnpm install
+        build:
+          commands:
+            - pnpm build
+
+      artifacts:
+        baseDirectory: .next
+        files:
+          - '**/*'
+
+      cache:
+        paths:
+          - .pnpm-store/**/*
+          - node_modules/**/*
