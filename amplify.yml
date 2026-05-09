@@ -10,6 +10,7 @@ applications:
             - rm -f pnpm-workspace.yaml
             - rm -f pnpm-workspace.yml
             - pnpm install
+            - pnpm install xlsx
         build:
           commands:
             - pnpm build
