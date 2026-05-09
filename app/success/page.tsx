@@ -36,13 +36,18 @@ function SuccessContent() {
                             )}
                         </div>
                         <h1 className="text-3xl font-black text-white tracking-tight">
-                            {method === "Zelle" ? "Payment Pending!" : "Payment Successful!"}
+                            {method === "Zelle" ? "Payment Pending!" : "Thank You!"}
                         </h1>
                         <p className={`font-medium text-sm ${method === "Zelle" ? "text-amber-50" : "text-emerald-100"}`}>
                             {method === "Zelle" 
                                 ? "Your Zelle transaction is under review. You will be notified once approved by the admin."
-                                : "Your registration has been confirmed and recorded."}
+                                : "Your registration for the JJO Talent Hunt 2026 has been successfully confirmed."}
                         </p>
+                        {method !== "Zelle" && (
+                            <p className="font-semibold text-xs text-emerald-100 mt-2 bg-emerald-600/30 py-2 px-4 rounded-full inline-block border border-emerald-400/20 shadow-sm">
+                                Payment Successful
+                            </p>
+                        )}
                     </div>
 
                     <CardContent className="p-8 space-y-8 bg-white">

@@ -43,9 +43,7 @@ import { toast } from "sonner";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-const stripePromise = loadStripe(
-	process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
-);
+
 
 const CATEGORIES = [
 	{ id: "Recitation", name: "Recitation", price: 10 },
@@ -144,8 +142,8 @@ const saveToDatabase = async (payload: any) => {
 				body: JSON.stringify(payload),
 			},
 		);
-        console.log(res);
-        
+		console.log(res);
+
 
 		// if (!res.ok) {
 		// 	const errorData = await res.json();
@@ -275,7 +273,7 @@ export default function OfficialRegistrationForm() {
 				await saveToDatabase({
 					...watch(),
 					transaction_id: paymentIntent.id,
-					total_amount:total,
+					total_amount: total,
 				});
 				toast.success("Official Enrolment Confirmed.");
 				reset();
@@ -334,18 +332,18 @@ export default function OfficialRegistrationForm() {
 					<form
 						onSubmit={handleSubmit(async (d) => {
 							if (activeMethod === "Zelle") {
-								
-									const res = await saveToDatabase({ ...d, total_amount: total, transaction_id: "Pending - Zelle" });
-									const result = await res.json();
-									
-                                    
-									if (result.success) {
-										toast.success("Official Enrolment Confirmed.");
-										console.log(result);
-										handleSuccessRedirect(result);
-                                        setClientSecret(null);
-									}
-								
+
+								const res = await saveToDatabase({ ...d, total_amount: total, transaction_id: "Pending - Zelle" });
+								const result = await res.json();
+
+
+								if (result.success) {
+									toast.success("Official Enrolment Confirmed.");
+									console.log(result);
+									handleSuccessRedirect(result);
+									setClientSecret(null);
+								}
+
 							}
 						})}
 						className="space-y-6 w-full">
@@ -606,7 +604,7 @@ export default function OfficialRegistrationForm() {
 						<Card className="rounded-xl border-slate-200 shadow-md overflow-hidden border-t-4 border-t-slate-900">
 							<CardContent className="p-0 flex flex-col md:flex-row">
 								{/* Final Totals Sidebar */}
-								<div className="md:w-1/3 bg-slate-50 p-8 border-b md:border-b-0 md:border-r border-slate-200 space-y-6">
+								{/* <div className="md:w-1/3 bg-slate-50 p-8 border-b md:border-b-0 md:border-r border-slate-200 space-y-6">
 									<div className="space-y-1">
 										<p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
 											Enrolment Fee Summary
@@ -648,7 +646,7 @@ export default function OfficialRegistrationForm() {
 											))}
 										</div>
 									</div>
-								</div>
+								</div> */}
 
 								{/* Dynamic Gateway Area */}
 								<div className="flex-1 p-8 bg-white min-h-[350px] flex flex-col justify-center">
@@ -665,7 +663,7 @@ export default function OfficialRegistrationForm() {
                             )
                         )} */}
 
-									{activeMethod === "PayPal" && (
+									{/* {activeMethod === "PayPal" && (
 										<div className="space-y-6 animate-in fade-in">
 											<div className="p-4 rounded-md bg-blue-50 border border-blue-100 flex items-start gap-3">
 												<HelpCircle className="w-4 h-4 text-blue-500 mt-0.5" />
@@ -730,7 +728,7 @@ export default function OfficialRegistrationForm() {
 														} else {
 															toast.error(
 																result.message ||
-																	"Database synchronization failed.",
+																"Database synchronization failed.",
 															);
 														}
 													} catch (error) {
@@ -789,7 +787,8 @@ export default function OfficialRegistrationForm() {
 												</Button>
 											</div>
 										</div>
-									)}
+									)} */}
+									<div className="text-center text-md font-bold">Registration is closed. Thank you for registering.</div>
 								</div>
 							</CardContent>
 						</Card>
